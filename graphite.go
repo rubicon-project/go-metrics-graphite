@@ -70,6 +70,7 @@ func graphite(c *Config) error {
 			count := metric.Count()
 			fmt.Fprintf(w, "%s.%s.count %d %d\n", c.Prefix, name, count, now)
 			fmt.Fprintf(w, "%s.%s.count_ps %.2f %d\n", c.Prefix, name, float64(count)/flushSeconds, now)
+			metric.Clear()
 		case metrics.Gauge:
 			fmt.Fprintf(w, "%s.%s.value %d %d\n", c.Prefix, name, metric.Value(), now)
 		case metrics.GaugeFloat64:
