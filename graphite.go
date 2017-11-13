@@ -21,12 +21,17 @@ type Config struct {
 	DurationUnit  time.Duration    // Time conversion unit for durations
 	Prefix        string           // Prefix to be prepended to metric names
 	Percentiles   []float64        // Percentiles to export from timers and histograms
+	Clear         bool             // Clear counters after every flush
 }
 
 // Graphite is a blocking exporter function which reports metrics in r
 // to a graphite server located at addr, flushing them every d duration
 // and prepending metric names with prefix.
-func Graphite(r metrics.Registry, d time.Duration, prefix string, addr *net.TCPAddr) {
+func Graphite(r metrics.Registry, d time.Duration, prefix string, addr *net.TCPAddr, cm ...bool) {
+	clear := false
+	if len(cm) > 0 {
+		clear = cm[0]
+	}
 	WithConfig(Config{
 		Addr:          addr,
 		Registry:      r,
@@ -34,6 +39,7 @@ func Graphite(r metrics.Registry, d time.Duration, prefix string, addr *net.TCPA
 		DurationUnit:  time.Nanosecond,
 		Prefix:        prefix,
 		Percentiles:   []float64{0.5, 0.75, 0.95, 0.99, 0.999},
+		Clear:         clear,
 	})
 }
 
@@ -70,7 +76,9 @@ func graphite(c *Config) error {
 			count := metric.Count()
 			fmt.Fprintf(w, "%s.%s.count %d %d\n", c.Prefix, name, count, now)
 			fmt.Fprintf(w, "%s.%s.count_ps %.2f %d\n", c.Prefix, name, float64(count)/flushSeconds, now)
-			metric.Clear()
+			if c.Clear {
+				metric.Clear()
+			}
 		case metrics.Gauge:
 			fmt.Fprintf(w, "%s.%s.value %d %d\n", c.Prefix, name, metric.Value(), now)
 		case metrics.GaugeFloat64:
