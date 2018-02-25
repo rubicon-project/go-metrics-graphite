@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rcrowley/go-metrics"
+	"github.com/rubicon-project/go-metrics"
 )
 
 // Config provides a container with configuration parameters for
@@ -95,7 +95,7 @@ func graphite(c *Config) error {
 				key := strings.Replace(strconv.FormatFloat(psKey*100.0, 'f', -1, 64), ".", "", 1)
 				fmt.Fprintf(w, "%s.%s.%s-percentile %.2f %d\n", c.Prefix, name, key, ps[psIdx], now)
 			}
-		case metrics.Meter:
+		case metrics.ThisMeter:
 			m := metric.Snapshot()
 			fmt.Fprintf(w, "%s.%s.count %d %d\n", c.Prefix, name, m.Count(), now)
 			fmt.Fprintf(w, "%s.%s.one-minute %.2f %d\n", c.Prefix, name, m.Rate1(), now)
