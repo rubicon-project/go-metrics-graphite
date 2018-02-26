@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rcrowley/go-metrics"
+	"github.com/rubicon-project/go-metrics"
 )
 
 func floatEquals(a, b float64) bool {
@@ -85,7 +85,7 @@ func TestWrites(t *testing.T) {
 
 	// TODO: Use a mock meter rather than wasting 10s to get a QPS.
 	for i := 0; i < 10*4; i++ {
-		metrics.GetOrRegisterMeter("bar", r).Mark(1)
+		metrics.GetOrRegisterThisMeter("bar", r).Mark(1)
 		time.Sleep(200 * time.Millisecond)
 	}
 
